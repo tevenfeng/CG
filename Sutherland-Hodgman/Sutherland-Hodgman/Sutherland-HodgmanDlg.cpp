@@ -14,12 +14,12 @@
 
 // CSutherlandHodgmanDlg 对话框
 
-bool m_rBtndown;
-bool m_lBtndbclk;
+bool m_rBtndown;																			//用于判断鼠标右键是否按下
+bool m_lBtndbclk;																			//用于判断矩形是否闭合
 CPoint m_startPoint;
 CPoint m_endPoint;
-CPoint pointArray[100];
-int pointCount = 0;
+CPoint pointArray[100];																		//存储多边形的点
+int pointCount = 0;																			//多边形点的计数
 
 
 CSutherlandHodgmanDlg::CSutherlandHodgmanDlg(CWnd* pParent /*=NULL*/)
@@ -127,7 +127,8 @@ HCURSOR CSutherlandHodgmanDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
-
+//鼠标左键按下，获取获取一个多边形的点，存入数组中
+//若点的计数超过两个则同时调用OnPaint函数画出来
 void CSutherlandHodgmanDlg::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	if (m_lBtndbclk == false)
@@ -145,7 +146,7 @@ void CSutherlandHodgmanDlg::OnLButtonDown(UINT nFlags, CPoint point)
 	CDialogEx::OnLButtonDown(nFlags, point);
 }
 
-
+//闭合按钮，使得矩形闭合
 void CSutherlandHodgmanDlg::OnBnClickedButtonrect()
 {
 	m_lBtndbclk = true;
@@ -153,7 +154,7 @@ void CSutherlandHodgmanDlg::OnBnClickedButtonrect()
 	Invalidate(FALSE);
 }
 
-
+//鼠标右键按住，开始捕捉鼠标移动的动作
 void CSutherlandHodgmanDlg::OnRButtonDown(UINT nFlags, CPoint point)
 {
 	m_startPoint = point;
@@ -164,21 +165,19 @@ void CSutherlandHodgmanDlg::OnRButtonDown(UINT nFlags, CPoint point)
 	CDialogEx::OnRButtonDown(nFlags, point);
 }
 
-
+//鼠标右键松开，释放鼠标移动动作的捕捉
 void CSutherlandHodgmanDlg::OnRButtonUp(UINT nFlags, CPoint point)
 {
 	if (this == GetCapture())
 	{
 		ReleaseCapture();
 	}
-	
 	m_rBtndown = false;
-	//Invalidate(FALSE);
 
 	CDialogEx::OnRButtonUp(nFlags, point);
 }
 
-
+//按住右键移动过程中不断更新m_endPoint，同时将其画出来
 void CSutherlandHodgmanDlg::OnMouseMove(UINT nFlags, CPoint point)
 {
 	if (m_rBtndown)
@@ -190,7 +189,7 @@ void CSutherlandHodgmanDlg::OnMouseMove(UINT nFlags, CPoint point)
 	CDialogEx::OnMouseMove(nFlags, point);
 }
 
-
+//刷新背景
 BOOL CSutherlandHodgmanDlg::OnEraseBkgnd(CDC* pDC)
 {
 	return TRUE;
