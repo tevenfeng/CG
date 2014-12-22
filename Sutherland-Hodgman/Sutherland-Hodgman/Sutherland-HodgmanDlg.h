@@ -36,4 +36,5 @@ public:
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 	afx_msg void OnBnClickedButtonrect();
+	afx_msg void OnBnClickedButtonreset();
 };

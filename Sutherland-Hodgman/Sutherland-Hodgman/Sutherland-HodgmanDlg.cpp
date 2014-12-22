@@ -42,6 +42,7 @@ BEGIN_MESSAGE_MAP(CSutherlandHodgmanDlg, CDialogEx)
 	ON_WM_MOUSEMOVE()
 	ON_WM_ERASEBKGND()
 	ON_BN_CLICKED(IDC_BUTTON_rect, &CSutherlandHodgmanDlg::OnBnClickedButtonrect)
+	ON_BN_CLICKED(IDC_BUTTON_reset, &CSutherlandHodgmanDlg::OnBnClickedButtonreset)
 END_MESSAGE_MAP()
 
 
@@ -194,4 +195,13 @@ BOOL CSutherlandHodgmanDlg::OnEraseBkgnd(CDC* pDC)
 {
 	return TRUE;
 	//return CDialogEx::OnEraseBkgnd(pDC);
+}
+
+//÷ÿ÷√∞¥≈•
+void CSutherlandHodgmanDlg::OnBnClickedButtonreset()
+{
+	m_lBtndbclk = false;
+	m_rBtndown = false;
+	pointCount = 0;
+	Invalidate(FALSE);
 }
