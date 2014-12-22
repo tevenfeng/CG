@@ -15,8 +15,11 @@
 // CSutherlandHodgmanDlg 对话框
 
 bool m_rBtndown;
+bool m_lBtndbclk;
 CPoint m_startPoint;
 CPoint m_endPoint;
+CPoint pointArray[100];
+int pointCount = 0;
 
 
 CSutherlandHodgmanDlg::CSutherlandHodgmanDlg(CWnd* pParent /*=NULL*/)
@@ -38,6 +41,7 @@ BEGIN_MESSAGE_MAP(CSutherlandHodgmanDlg, CDialogEx)
 	ON_WM_RBUTTONUP()
 	ON_WM_MOUSEMOVE()
 	ON_WM_ERASEBKGND()
+	ON_BN_CLICKED(IDC_BUTTON_rect, &CSutherlandHodgmanDlg::OnBnClickedButtonrect)
 END_MESSAGE_MAP()
 
 
@@ -56,6 +60,7 @@ BOOL CSutherlandHodgmanDlg::OnInitDialog()
 
 	// TODO:  在此添加额外的初始化代码
 	m_rBtndown = false;
+	m_lBtndbclk = false;
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -92,6 +97,17 @@ void CSutherlandHodgmanDlg::OnPaint()
 		CBrush myBrush(RGB(255, 255, 255));
 		dc.FillRect(&rect, &myBrush);
 
+		dc.MoveTo(pointArray[0].x,pointArray[0].y);
+		for (int i = 1; i < pointCount; i++)
+		{
+			dc.LineTo(pointArray[i].x, pointArray[i].y);
+		}
+
+		if (m_lBtndbclk)
+		{
+			dc.LineTo(pointArray[0].x,pointArray[0].y);
+		}
+
 		if (m_rBtndown)
 		{
 			CRect rect(m_startPoint,m_endPoint);
@@ -114,9 +130,27 @@ HCURSOR CSutherlandHodgmanDlg::OnQueryDragIcon()
 
 void CSutherlandHodgmanDlg::OnLButtonDown(UINT nFlags, CPoint point)
 {
-	
+	if (m_lBtndbclk == false)
+	{
+		pointArray[pointCount] = point;
+		pointCount++;
+		OnPaint();
+		Invalidate(FALSE);
+	}
+	else
+	{
+		MessageBox(_T("矩形已闭合！"));
+	}
 
 	CDialogEx::OnLButtonDown(nFlags, point);
+}
+
+
+void CSutherlandHodgmanDlg::OnBnClickedButtonrect()
+{
+	m_lBtndbclk = true;
+	OnPaint();
+	Invalidate(FALSE);
 }
 
 
