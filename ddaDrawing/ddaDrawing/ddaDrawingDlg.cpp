@@ -94,7 +94,6 @@ HCURSOR CddaDrawingDlg::OnQueryDragIcon()
 
 void CddaDrawingDlg::OnBnClickedButtonGrid()
 {
-	//TODO:  在此添加控件通知处理程序代码
 	CClientDC pDC(this);
 	CPen myPen;
 	myPen.CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
@@ -112,10 +111,12 @@ void CddaDrawingDlg::OnBnClickedButtonGrid()
 }
 
 //DDA算法
+//先获取坐标，而后根据斜率情况分为绝对值小于1和大于1两类
+//每类下又分为大于0和小于等于0两种情况
 void CddaDrawingDlg::OnBnClickedButtonDda()
 {
 	// TODO:  在此添加控件通知处理程序代码
-	bool test = getCoordinate();                              //获取坐标
+	bool test = getCoordinate();                              //获取坐标，返回值表示坐标是否合法
 	if (!test)
 	{
 		MessageBox(_T("坐标错误！"));
@@ -173,9 +174,10 @@ void CddaDrawingDlg::OnBnClickedButtonDda()
 	}
 }
 
+//Bresenham算法画线
+//分为四种情况，斜率k<-1、-1<=k<0、0<=k<=1以及k>1四种情况
 void CddaDrawingDlg::OnBnClickedButtonBresenham()
 {
-	// TODO:  在此添加控件通知处理程序代码
 	bool test = getCoordinate();                              //获取坐标
 	if (!test)
 	{
@@ -189,9 +191,10 @@ void CddaDrawingDlg::OnBnClickedButtonBresenham()
 
 		if (k >= 0)
 		{
-			if (k <= 1)
+			if (k <= 1)     //0<=k<=1的情况
 			{
-				if (startX - endX > 0){ exchange(); }
+				if (startX - endX > 0){ exchange(); }					//若出发点x坐标大于终点，交换，保证从较低点出发
+
 				int dy = endY - startY;
 				int dx = endX - startX;
 				int pk = 2 * dy - dx;
@@ -204,7 +207,7 @@ void CddaDrawingDlg::OnBnClickedButtonBresenham()
 					nextX++;
 					if (pk > 0)
 					{
-						yk1 = yk + 1;
+						yk1 = yk + 1;							//此时，P（k+1）>0且k>0，故Y（k+1）=Yk+1
 					}
 					else
 					{
@@ -216,9 +219,10 @@ void CddaDrawingDlg::OnBnClickedButtonBresenham()
 					pk = pk1;
 				}
 			}
-			else
+			else    //k>1的情况，应以y左为基准增量,即y++
 			{
-				if (startY - endY > 0){ exchange(); }
+				if (startY - endY > 0){ exchange(); }					//若出发点y坐标大于终点，交换，保证从较低点出发
+
 				int dy = endY - startY;
 				int dx = endX - startX;
 				int pk = 2 * dx - dy;
@@ -231,7 +235,7 @@ void CddaDrawingDlg::OnBnClickedButtonBresenham()
 					nextY++;
 					if (pk > 0)
 					{
-						xk1 = xk + 1;
+						xk1 = xk + 1;									//此时，k>1且P(k+1)>0，故X(k+1)=Xk+1
 					}
 					else
 					{
@@ -244,13 +248,13 @@ void CddaDrawingDlg::OnBnClickedButtonBresenham()
 				}
 			}
 		}
-		else
+		else        //k<0
 		{
-			if (k >= -1)
+			if (k >= -1)				//-1<=k<0
 			{
-				if (startX - endX > 0){ exchange(); }
-				int dy = -(endY - startY);
-				int dx = -(endX - startX);
+				if (startX - endX > 0){ exchange(); }					//若出发点x坐标大于终点，交换，保证从较低点出发
+				int dy = -(endY - startY);								//此时k<0，dy应该取其相反数
+				int dx = -(endX - startX);								//加 - 号的理由同上
 				int pk = 2 * dy - dx;
 				int pk1 = pk;
 				int yk, yk1;
@@ -273,11 +277,12 @@ void CddaDrawingDlg::OnBnClickedButtonBresenham()
 					pk = pk1;
 				}
 			}
-			else
+			else      //k<-1
 			{
-				if (startY - endY > 0){ exchange(); }
-				int dy = -(endY - startY);
-				int dx = -(endX - startX);
+				if (startY - endY > 0){ exchange(); }					//若出发点y坐标大于终点，交换，保证从较低点出发
+
+				int dy = -(endY - startY);								//k<0，故应该取相反数
+				int dx = -(endX - startX);								//同上
 				int pk = 2 * dx - dy;
 				int pk1 = pk;
 				int xk, xk1;
@@ -304,13 +309,13 @@ void CddaDrawingDlg::OnBnClickedButtonBresenham()
 	}
 }
 
-//从编辑框中获取起点和终点的坐标
+//从编辑框中获取起点和终点的坐标，返回值为bool型，表示输入的坐标是否合法
 bool CddaDrawingDlg::getCoordinate()
 {
 	startX = GetDlgItemInt(IDC_EDIT_startX, NULL, TRUE);
-	startY = GetDlgItemInt(IDC_EDIT_startY, NULL, TRUE);                        //149减是为了使原点在左下方
+	startY = GetDlgItemInt(IDC_EDIT_startY, NULL, TRUE);                 
 	endX = GetDlgItemInt(IDC_EDIT_endX, NULL, TRUE);
-	endY = GetDlgItemInt(IDC_EDIT_endY, NULL, TRUE);							//149减是为了使原点在左下方
+	endY = GetDlgItemInt(IDC_EDIT_endY, NULL, TRUE);						
 
 	//判断坐标是否合法
 	if ((startX < 0) 
@@ -332,17 +337,22 @@ bool CddaDrawingDlg::getCoordinate()
 
 
 //画出一个“像素”
+//“像素”实际上是一个变长为4的方块
+//x为横坐标，y为纵坐标，test表示是那种方法，1为DDA，2为Bresenham算法
 void CddaDrawingDlg::drawPixel(int x,int y, int test)
 {
 	CClientDC pdc(this);
 	y = 149 - y;
 
+	//转换成屏幕坐标系
 	POINT p1, p2;
 	p1.x = x * 4 + 12;
 	p1.y = y * 4 + 12;
 	p2.x = p1.x + 4;
 	p2.y = p1.y + 4;
 	CRect rectangle(p1, p2);
+
+	//1为DDA算法，颜色值为红色，2为Bresenham算法，颜色值为蓝色
 	if (test == 1)
 	{
 		CBrush myBrush(RGB(255, 0, 0));
@@ -355,6 +365,8 @@ void CddaDrawingDlg::drawPixel(int x,int y, int test)
 	}
 }
 
+//交换函数
+//为了确保程序运算增量时从较低的点出发
 void CddaDrawingDlg::exchange()
 {
 	int tmp = startX;

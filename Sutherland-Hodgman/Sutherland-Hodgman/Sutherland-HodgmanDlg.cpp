@@ -19,7 +19,7 @@ bool m_lBtndbclk;																			//用于判断矩形是否闭合
 CPoint m_startPoint;																		//绘制窗口过程中左上角顶点
 CPoint m_endPoint;																			//绘制窗口过程中右下角顶点
 CPoint rect_topleft, rect_topright, rect_btmleft, rect_btmright;							//窗口四个顶点
-CPoint pointArray[100],cut1[100],cut2[100],cut3[100],cut4[100];								//存储多边形的点
+CPoint pointArray[100],cuttedPoint1[100],cuttedPoint2[100],cuttedPoint3[100],cuttedPoint4[100];								//存储多边形的点
 int pointCount = 0;																			//多边形点的计数
 int cuttedNum = 0;																			//裁剪队列中已存在的点的数量
 
@@ -239,7 +239,7 @@ void CSutherlandHodgmanDlg::OnBnClickedButtoncut()
 		{
 			//把交点加入输出队列
 			if (p1.x>p3.x)
-				cut1[cuttedNum++] = p2;
+				cuttedPoint1[cuttedNum++] = p2;
 		}
 		else
 		{
@@ -253,13 +253,13 @@ void CSutherlandHodgmanDlg::OnBnClickedButtoncut()
 			{
 				p.x = x;
 				p.y = y;
-				cut1[cuttedNum++] = p;
+				cuttedPoint1[cuttedNum++] = p;
 			}
 
 			//从外向内或者从内到内
 			if (p2.x > p3.x)
 			{
-				cut1[cuttedNum++] = p2;
+				cuttedPoint1[cuttedNum++] = p2;
 			}
 		}
 	}
@@ -274,19 +274,19 @@ void CSutherlandHodgmanDlg::OnBnClickedButtoncut()
 		//设置线段起始点
 		if (i < pointCount - 1)
 		{
-			p1 = cut1[i];
-			p2 = cut1[i + 1];
+			p1 = cuttedPoint1[i];
+			p2 = cuttedPoint1[i + 1];
 		}
 		else if (i == pointCount - 1)
 		{
-			p1 = cut1[i];
-			p2 = cut1[0];
+			p1 = cuttedPoint1[i];
+			p2 = cuttedPoint1[0];
 		}
 		//判断垂直
 		if (p1.x == p2.x)
 		{
 			if (p1.x<p3.x)
-				cut2[cuttedNum++] = p2;
+				cuttedPoint2[cuttedNum++] = p2;
 		}
 		else
 		{
@@ -297,11 +297,11 @@ void CSutherlandHodgmanDlg::OnBnClickedButtoncut()
 			{
 				p.x = x;
 				p.y = y;
-				cut2[cuttedNum++] = p;
+				cuttedPoint2[cuttedNum++] = p;
 			}
 			if (p2.x < p3.x)//从外向内或从内到内
 			{
-				cut2[cuttedNum++] = p2;
+				cuttedPoint2[cuttedNum++] = p2;
 			}
 		}
 	}
@@ -316,20 +316,20 @@ void CSutherlandHodgmanDlg::OnBnClickedButtoncut()
 		//设置线段起始点
 		if (i < pointCount - 1)
 		{
-			p1 = cut2[i];
-			p2 = cut2[i + 1];
+			p1 = cuttedPoint2[i];
+			p2 = cuttedPoint2[i + 1];
 		}
 		else if (i == pointCount - 1)
 		{
-			p1 = cut2[i];
-			p2 = cut2[0];
+			p1 = cuttedPoint2[i];
+			p2 = cuttedPoint2[0];
 		}
 
 		//判断平行
 		if (p1.y == p2.y)//从内到内
 		{
 			if (p1.y<p3.y)
-				cut3[cuttedNum++] = p2;
+				cuttedPoint3[cuttedNum++] = p2;
 		}
 		else
 		{
@@ -339,7 +339,7 @@ void CSutherlandHodgmanDlg::OnBnClickedButtoncut()
 				{
 					p.x = p1.x;
 					p.y = p3.y;
-					cut3[cuttedNum++] = p;
+					cuttedPoint3[cuttedNum++] = p;
 				}
 			}
 			else
@@ -350,12 +350,14 @@ void CSutherlandHodgmanDlg::OnBnClickedButtoncut()
 				{
 					p.x = x;
 					p.y = y;
-					cut3[cuttedNum++] = p;
+					cuttedPoint3[cuttedNum++] = p;
 				}
 			}
-			if (p2.y < p3.y)//从外向内
+
+			//从外向内
+			if (p2.y < p3.y)
 			{
-				cut3[cuttedNum++] = p2;
+				cuttedPoint3[cuttedNum++] = p2;
 			}
 		}
 	}
@@ -370,29 +372,33 @@ void CSutherlandHodgmanDlg::OnBnClickedButtoncut()
 		//设置线段起始点
 		if (i < pointCount - 1)
 		{
-			p1 = cut3[i];
-			p2 = cut3[i + 1];
+			p1 = cuttedPoint3[i];
+			p2 = cuttedPoint3[i + 1];
 		}
 		else if (i == pointCount - 1)
 		{
-			p1 = cut3[i];
-			p2 = cut3[0];
+			p1 = cuttedPoint3[i];
+			p2 = cuttedPoint3[0];
 		}
+
 		//判断平行
-		if (p1.y == p2.y)//从内到内
+		if (p1.y == p2.y)
 		{
+			//从内到内
 			if (p1.y>p3.y)
-				cut4[cuttedNum++] = p2;
+				cuttedPoint4[cuttedNum++] = p2;
 		}
 		else
 		{
-			if (p1.x == p2.x)//垂直直接计算交点
+			if (p1.x == p2.x)
 			{
-				if (p3.y>min(p1.y, p2.y) && p3.y<max(p1.y, p2.y))//从外向内
+				//垂直直接计算交点
+				if (p3.y>min(p1.y, p2.y) && p3.y<max(p1.y, p2.y))
 				{
+					//从外向内
 					p.x = p1.x;
 					p.y = p3.y;
-					cut4[cuttedNum++] = p;
+					cuttedPoint4[cuttedNum++] = p;
 				}
 			}
 			else
@@ -404,12 +410,14 @@ void CSutherlandHodgmanDlg::OnBnClickedButtoncut()
 				{
 					p.x = x;
 					p.y = y;
-					cut4[cuttedNum++] = p;
+					cuttedPoint4[cuttedNum++] = p;
 				}
 			}
-			if (p2.y > p3.y)//从外向内
+
+			if (p2.y > p3.y)
 			{
-				cut4[cuttedNum++] = p2;
+				//从外向内
+				cuttedPoint4[cuttedNum++] = p2;
 			}
 		}
 	}
@@ -420,9 +428,9 @@ void CSutherlandHodgmanDlg::OnBnClickedButtoncut()
 	dc.SelectObject(&pen);
 	for (int i = 0; i < cuttedNum - 1; i++)
 	{
-		dc.MoveTo(cut4[i]);
-		dc.LineTo(cut4[i + 1]);
+		dc.MoveTo(cuttedPoint4[i]);
+		dc.LineTo(cuttedPoint4[i + 1]);
 	}
-	dc.MoveTo(cut4[cuttedNum - 1]);
-	dc.LineTo(cut4[0]);
+	dc.MoveTo(cuttedPoint4[cuttedNum - 1]);
+	dc.LineTo(cuttedPoint4[0]);
 }
