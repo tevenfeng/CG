@@ -37,4 +37,5 @@ public:
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 	afx_msg void OnBnClickedButtonrect();
 	afx_msg void OnBnClickedButtonreset();
+	afx_msg void OnBnClickedButtoncut();
 };

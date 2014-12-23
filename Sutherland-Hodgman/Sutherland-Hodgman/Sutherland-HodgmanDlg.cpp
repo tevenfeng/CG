@@ -16,11 +16,12 @@
 
 bool m_rBtndown;																			//用于判断鼠标右键是否按下
 bool m_lBtndbclk;																			//用于判断矩形是否闭合
-CPoint m_startPoint;
-CPoint m_endPoint;
-CPoint pointArray[100];																		//存储多边形的点
+CPoint m_startPoint;																		//绘制窗口过程中左上角顶点
+CPoint m_endPoint;																			//绘制窗口过程中右下角顶点
+CPoint rect_topleft, rect_topright, rect_btmleft, rect_btmright;							//窗口四个顶点
+CPoint pointArray[100],cut1[100],cut2[100],cut3[100],cut4[100];								//存储多边形的点
 int pointCount = 0;																			//多边形点的计数
-
+int cuttedNum = 0;																			//裁剪队列中已存在的点的数量
 
 CSutherlandHodgmanDlg::CSutherlandHodgmanDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CSutherlandHodgmanDlg::IDD, pParent)
@@ -43,11 +44,11 @@ BEGIN_MESSAGE_MAP(CSutherlandHodgmanDlg, CDialogEx)
 	ON_WM_ERASEBKGND()
 	ON_BN_CLICKED(IDC_BUTTON_rect, &CSutherlandHodgmanDlg::OnBnClickedButtonrect)
 	ON_BN_CLICKED(IDC_BUTTON_reset, &CSutherlandHodgmanDlg::OnBnClickedButtonreset)
+	ON_BN_CLICKED(IDC_BUTTON_cut, &CSutherlandHodgmanDlg::OnBnClickedButtoncut)
 END_MESSAGE_MAP()
 
 
 // CSutherlandHodgmanDlg 消息处理程序
-
 BOOL CSutherlandHodgmanDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
@@ -69,7 +70,6 @@ BOOL CSutherlandHodgmanDlg::OnInitDialog()
 // 如果向对话框添加最小化按钮，则需要下面的代码
 //  来绘制该图标。  对于使用文档/视图模型的 MFC 应用程序，
 //  这将由框架自动完成。
-
 void CSutherlandHodgmanDlg::OnPaint()
 {
 	if (IsIconic())
@@ -187,6 +187,11 @@ void CSutherlandHodgmanDlg::OnMouseMove(UINT nFlags, CPoint point)
 		Invalidate(FALSE);
 	}
 
+	rect_topleft = CPoint(m_startPoint.x, m_startPoint.y);
+	rect_topright = CPoint(m_endPoint.x, m_startPoint.y);
+	rect_btmleft = CPoint(m_startPoint.x, m_endPoint.y);
+	rect_btmright = CPoint(m_endPoint.x, m_endPoint.y);
+
 	CDialogEx::OnMouseMove(nFlags, point);
 }
 
@@ -204,4 +209,220 @@ void CSutherlandHodgmanDlg::OnBnClickedButtonreset()
 	m_rBtndown = false;
 	pointCount = 0;
 	Invalidate(FALSE);
+}
+
+//裁剪算法
+void CSutherlandHodgmanDlg::OnBnClickedButtoncut()
+{
+	POINT p1, p2, p3, p4, p;
+
+	//左裁剪
+	p3 = rect_topleft;
+	p4 = rect_btmleft;
+	cuttedNum = 0;
+	for (int i = 0; i < pointCount; i++)
+	{
+		//设置起始线段
+		if (i < pointCount - 1)
+		{
+			p1 = pointArray[i];
+			p2 = pointArray[i + 1];
+		}
+		else if (i == pointCount - 1)
+		{
+			p1 = pointArray[i];
+			p2 = pointArray[0];
+		}
+
+		//判断是否垂直
+		if (p1.x == p2.x)
+		{
+			//把交点加入输出队列
+			if (p1.x>p3.x)
+				cut1[cuttedNum++] = p2;
+		}
+		else
+		{
+			//不垂直就可以通过斜率
+			//计算延长线交点
+			int x = p3.x;
+			int y = p2.y - (double)(p2.y - p1.y)*(double)(p2.x - x) / (double)(p2.x - p1.x);
+
+			//有交点
+			if (y > min(p1.y, p2.y) && y < max(p1.y, p2.y))
+			{
+				p.x = x;
+				p.y = y;
+				cut1[cuttedNum++] = p;
+			}
+
+			//从外向内或者从内到内
+			if (p2.x > p3.x)
+			{
+				cut1[cuttedNum++] = p2;
+			}
+		}
+	}
+
+	//右裁剪
+	p3 = rect_topright;
+	p4 = rect_btmright;
+	pointCount = cuttedNum;
+	cuttedNum = 0;
+	for (int i = 0; i < pointCount; i++)
+	{
+		//设置线段起始点
+		if (i < pointCount - 1)
+		{
+			p1 = cut1[i];
+			p2 = cut1[i + 1];
+		}
+		else if (i == pointCount - 1)
+		{
+			p1 = cut1[i];
+			p2 = cut1[0];
+		}
+		//判断垂直
+		if (p1.x == p2.x)
+		{
+			if (p1.x<p3.x)
+				cut2[cuttedNum++] = p2;
+		}
+		else
+		{
+			int x = p3.x;
+			int y = p2.y - (double)(p2.y - p1.y)*(double)(p2.x - x) / (double)(p2.x - p1.x);
+			//有交点
+			if (y > min(p1.y, p2.y) && y < max(p1.y, p2.y))
+			{
+				p.x = x;
+				p.y = y;
+				cut2[cuttedNum++] = p;
+			}
+			if (p2.x < p3.x)//从外向内或从内到内
+			{
+				cut2[cuttedNum++] = p2;
+			}
+		}
+	}
+
+	//下裁剪
+	p3 = rect_btmleft;
+	p4 = rect_btmright;
+	pointCount = cuttedNum;
+	cuttedNum = 0;
+	for (int i = 0; i < pointCount; i++)
+	{
+		//设置线段起始点
+		if (i < pointCount - 1)
+		{
+			p1 = cut2[i];
+			p2 = cut2[i + 1];
+		}
+		else if (i == pointCount - 1)
+		{
+			p1 = cut2[i];
+			p2 = cut2[0];
+		}
+
+		//判断平行
+		if (p1.y == p2.y)//从内到内
+		{
+			if (p1.y<p3.y)
+				cut3[cuttedNum++] = p2;
+		}
+		else
+		{
+			if (p1.x == p2.x)//垂直直接计算交点
+			{
+				if (p3.y>min(p1.y, p2.y) && p3.y<max(p1.y, p2.y))//从外向内
+				{
+					p.x = p1.x;
+					p.y = p3.y;
+					cut3[cuttedNum++] = p;
+				}
+			}
+			else
+			{
+				int y = p3.y;
+				int x = p2.x - (double)(p2.y - y)*(double)(p2.x - p1.x) / (double)(p2.y - p1.y);
+				if (x > min(p1.x, p2.x) && x < max(p1.x, p2.x))
+				{
+					p.x = x;
+					p.y = y;
+					cut3[cuttedNum++] = p;
+				}
+			}
+			if (p2.y < p3.y)//从外向内
+			{
+				cut3[cuttedNum++] = p2;
+			}
+		}
+	}
+
+	//上裁剪
+	p3 = rect_topleft;
+	p4 = rect_topright;
+	pointCount = cuttedNum;
+	cuttedNum = 0;
+	for (int i = 0; i < pointCount; i++)
+	{
+		//设置线段起始点
+		if (i < pointCount - 1)
+		{
+			p1 = cut3[i];
+			p2 = cut3[i + 1];
+		}
+		else if (i == pointCount - 1)
+		{
+			p1 = cut3[i];
+			p2 = cut3[0];
+		}
+		//判断平行
+		if (p1.y == p2.y)//从内到内
+		{
+			if (p1.y>p3.y)
+				cut4[cuttedNum++] = p2;
+		}
+		else
+		{
+			if (p1.x == p2.x)//垂直直接计算交点
+			{
+				if (p3.y>min(p1.y, p2.y) && p3.y<max(p1.y, p2.y))//从外向内
+				{
+					p.x = p1.x;
+					p.y = p3.y;
+					cut4[cuttedNum++] = p;
+				}
+			}
+			else
+			{
+				//求交点
+				int y = p3.y;
+				int x = p2.x - (double)(p2.y - y)*(double)(p2.x - p1.x) / (double)(p2.y - p1.y);
+				if (x > min(p1.x, p2.x) && x < max(p1.x, p2.x))
+				{
+					p.x = x;
+					p.y = y;
+					cut4[cuttedNum++] = p;
+				}
+			}
+			if (p2.y > p3.y)//从外向内
+			{
+				cut4[cuttedNum++] = p2;
+			}
+		}
+	}
+
+	//开始绘制
+	CClientDC dc(this);
+	CPen pen(0, 2, RGB(255, 0, 0));
+	dc.SelectObject(&pen);
+	for (int i = 0; i < cuttedNum - 1; i++)
+	{
+		dc.MoveTo(cut4[i]);
+		dc.LineTo(cut4[i + 1]);
+	}
+	dc.MoveTo(cut4[cuttedNum - 1]);
+	dc.LineTo(cut4[0]);
 }
