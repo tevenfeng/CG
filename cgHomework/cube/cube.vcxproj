@@ -186,6 +186,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="geometryengine.cpp" />
+    <ClCompile Include="geometryengine1.cpp" />
+    <ClCompile Include="geometryengine2.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mainwidget.cpp" />
   </ItemGroup>
