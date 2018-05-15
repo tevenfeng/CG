@@ -14,17 +14,18 @@ bool ObjLoader::loadObj(char* path)
 	}
 	else
 	{
+		double x, y, z;
+		char lineHeader[128];
+		unsigned int a, b, c;
 		while (1)
 		{
-			char lineHeader[128];
 			int res = fscanf(file, "%s", lineHeader);
 			if (res == EOF)
 			{
 				break;
 			}
 			if (strcmp(lineHeader, "v") == 0)
-			{
-				double x, y, z;
+			{				
 				fscanf(file, "%lf %lf %lf\n", &x, &y, &z);
 				QVector3D tmp = QVector3D();
 				tmp.setX(x);
@@ -35,7 +36,6 @@ bool ObjLoader::loadObj(char* path)
 			else
 				if (strcmp(lineHeader, "f") == 0)
 				{
-					unsigned int a, b, c;
 					int matches = fscanf(file, "%d %d %d\n", &a, &b, &c);
 					if (matches != 3) {
 						QMessageBox::about(NULL, "Error", "File can't be read by our simple parser.\n");
