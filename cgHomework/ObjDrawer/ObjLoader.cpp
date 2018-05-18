@@ -2,6 +2,13 @@
 
 ObjLoader::ObjLoader()
 {
+	this->vertexes = vector<QVector3D>();
+	QVector3D tmp = QVector3D();
+	this->vertexes.push_back(tmp);			// vertexes in obj file start from 1
+
+	this->indices = vector<unsigned int>();
+
+	//loadObj(path);
 }
 
 bool ObjLoader::loadObj(char* path)
@@ -9,7 +16,7 @@ bool ObjLoader::loadObj(char* path)
 	FILE *file = fopen(path, "r");
 	if (file == NULL)
 	{
-		QMessageBox::about(NULL, "Error", "Can not open the obj file!");
+		QMessageBox::about(NULL, "Error", "Can not open the obj file! Please select your obj file!");
 		return false;
 	}
 	else
@@ -48,17 +55,6 @@ bool ObjLoader::loadObj(char* path)
 		}
 		return true;
 	}
-}
-
-ObjLoader::ObjLoader(char* path)
-{
-	this->vertexes = vector<QVector3D>();
-	QVector3D tmp = QVector3D();
-	this->vertexes.push_back(tmp);			// vertexes in obj file start from 1
-
-	this->indices = vector<unsigned int>();
-
-	loadObj(path);
 }
 
 ObjLoader::~ObjLoader()

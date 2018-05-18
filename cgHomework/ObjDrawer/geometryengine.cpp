@@ -83,7 +83,19 @@ GeometryEngine::~GeometryEngine()
 void GeometryEngine::initCubeGeometry()
 {
 	char* path = (char*)"torus.obj";
-	ObjLoader loader = ObjLoader(path);
+	char p[255];
+	ObjLoader loader = ObjLoader();
+	while (!loader.loadObj(path)) 
+	{
+		// exit the whole application
+		QString fileName = QFileDialog::getOpenFileName(nullptr, "Open OBJ File",
+			"",
+			"Obj (*.obj)");
+		string tmp = fileName.toStdString();
+		tmp.copy(p, tmp.length(),0);
+		p[tmp.length()] = '\0';
+		path = p;
+	}
 	vector<QVector3D> point = loader.getVertices();
 	vector<unsigned int> indice = loader.getIndices();
 	this->numOfVertices = point.size();
