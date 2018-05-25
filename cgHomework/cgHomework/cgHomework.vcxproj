@@ -114,6 +114,7 @@
   <ItemGroup>
     <ClCompile Include="cgHomework.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ModelViewTester.cpp" />
     <ClCompile Include="Transformation.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -126,6 +127,7 @@
     <QtRcc Include="cgHomework.qrc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ModelViewTester.h" />
     <ClInclude Include="Transformation.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

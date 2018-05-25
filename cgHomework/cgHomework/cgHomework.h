@@ -4,6 +4,7 @@
 #include <QMessageBox>
 #include "ui_cgHomework.h"
 #include "Transformation.h"
+#include "ModelViewTester.h"
 
 class cgHomework : public QMainWindow
 {
