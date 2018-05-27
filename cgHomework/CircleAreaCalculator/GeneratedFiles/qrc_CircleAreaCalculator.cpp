@@ -26,21 +26,21 @@ namespace QT_NAMESPACE {
 }
 #endif
 
-int QT_RCC_MANGLE_NAMESPACE(qInitResources_cgHomework)();
-int QT_RCC_MANGLE_NAMESPACE(qInitResources_cgHomework)()
+int QT_RCC_MANGLE_NAMESPACE(qInitResources_CircleAreaCalculator)();
+int QT_RCC_MANGLE_NAMESPACE(qInitResources_CircleAreaCalculator)()
 {
     return 1;
 }
 
-int QT_RCC_MANGLE_NAMESPACE(qCleanupResources_cgHomework)();
-int QT_RCC_MANGLE_NAMESPACE(qCleanupResources_cgHomework)()
+int QT_RCC_MANGLE_NAMESPACE(qCleanupResources_CircleAreaCalculator)();
+int QT_RCC_MANGLE_NAMESPACE(qCleanupResources_CircleAreaCalculator)()
 {
     return 1;
 }
 
 namespace {
    struct initializer {
-       initializer() { QT_RCC_MANGLE_NAMESPACE(qInitResources_cgHomework)(); }
-       ~initializer() { QT_RCC_MANGLE_NAMESPACE(qCleanupResources_cgHomework)(); }
+       initializer() { QT_RCC_MANGLE_NAMESPACE(qInitResources_CircleAreaCalculator)(); }
+       ~initializer() { QT_RCC_MANGLE_NAMESPACE(qCleanupResources_CircleAreaCalculator)(); }
    } dummy;
 }
