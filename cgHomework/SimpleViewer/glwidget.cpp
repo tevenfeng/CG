@@ -4,15 +4,22 @@
 
 static const char *myVertexShaderSource =
 "in vec4 vPosition;\n"
+"in vec3 normal;\n"
 "uniform mat4 projMatrix;\n"
 "uniform mat4 mvMatrix;\n"
+"uniform mat3 normalMatrix;\n"
+"uniform vec3 lightPos;\n"
+"out vec4 veryingColor;\n"
 "void main(){\n"
 "    gl_Position = projMatrix * mvMatrix * vPosition;\n"
+"	 vec4 objectColor = vec4(0.5, 0.4, 0.8, 1.0);\n"
+"	 veryingColor = dot(normalize(normalMatrix*normal), normalize(lightPos-vPosition.xyz)) * objectColor;\n"
 "}\n";
 static const char *myFragmentShaderSource =
+"in vec4 veryingColor;\n"
 "out vec4 fColor;\n"
 "void main(){\n"
-"    fColor = vec4(0.5, 0.4, 0.8, 1.0);\n"
+"    fColor = veryingColor;\n"
 "}\n";
 
 GLWidget::GLWidget(QWidget *parent)
@@ -37,12 +44,14 @@ void GLWidget::initializeGL()
 	m_program->addShaderFromSourceCode(QOpenGLShader::Vertex, myVertexShaderSource);
 	m_program->addShaderFromSourceCode(QOpenGLShader::Fragment, myFragmentShaderSource);
 	m_program->bindAttributeLocation("vertex", 0);
-	//m_program->bindAttributeLocation("normal", 1);
+	m_program->bindAttributeLocation("normal", 1);
 	m_program->link();
 
 	m_program->bind();
 	m_projMatrixLoc = m_program->uniformLocation("projMatrix");
 	m_mvMatrixLoc = m_program->uniformLocation("mvMatrix");
+
+	m_program->setUniformValue(m_program->uniformLocation("lightPos"), QVector3D(0, 0, 70));
 
 	m_vao.create();
 	QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
@@ -89,6 +98,7 @@ void GLWidget::paintGL()
 	m_program->bind();
 	m_program->setUniformValue(m_projMatrixLoc, m_proj);
 	m_program->setUniformValue(m_mvMatrixLoc, m_camera * m_world);
+	m_program->setUniformValue(m_program->uniformLocation("normalMatrix"), m_world.normalMatrix());
 
 	glDrawArrays(GL_TRIANGLES, 0, m_logo.vertexCount());
 
@@ -112,7 +122,7 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
 	m_currPos = event->pos();
-	if (event->buttons() & Qt::LeftButton)
+	if (event->buttons() & Qt::LeftButton )
 	{
 		arcBall(m_lastPos, m_currPos);
 		update();
@@ -142,7 +152,7 @@ void GLWidget::arcBall(QPoint last_pnt, QPoint curr_pnt)
 
 double GLWidget::calculateX(QPoint point)
 {
-	return 2.0 * point.x() / WINDOW_WIDTH - 1;
+	return 2.0 * point.x() / WINDOW_WIDTH - 1.0;
 }
 
 double GLWidget::calculateY(QPoint point)
