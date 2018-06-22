@@ -9,7 +9,6 @@
 #include <QOpenGLBuffer>
 #include <QFileDialog>
 #include <QMatrix4x4>
-#include "logo.h"
 #include <math.h>
 #include "ObjLoader.h"
 
@@ -44,7 +43,6 @@ public:
 	QMatrix4x4 m_world_tmp;
 	int m_mvMatrixLoc;
 	int m_projMatrixLoc;
-	Logo m_logo;
 	QPoint m_lastPos;
 	QPoint m_currPos;
 	QVector3D rotateAxis;
