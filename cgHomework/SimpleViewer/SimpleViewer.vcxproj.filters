@@ -42,6 +42,9 @@
     <ClCompile Include="logo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ObjLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="SimpleViewer.h">
@@ -63,6 +66,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="logo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

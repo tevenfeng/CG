@@ -1,7 +1,34 @@
 #include "glwidget.h"
 #include <QMouseEvent>
-#include <iostream>
 
+//--------------------ADS-----------------------//
+//static const char *myVertexShaderSource =
+//"in vec4 vPosition;\n"
+//"in vec3 normal;\n"
+//"uniform mat4 projMatrix;\n"
+//"uniform mat4 mvMatrix;\n"
+//"uniform mat3 normalMatrix;\n"
+//"uniform vec3 lightPos;\n"
+//"out vec4 veryingColor;\n"
+//"void main(){\n"
+//"    gl_Position = projMatrix * mvMatrix * vPosition;\n"
+//"    vec4 diffuseColor= vec4(0.5, 0.4, 0.8, 1.0);\n"
+//"    vec4 ambientColor= vec4(0.1, 0.1, 0.1, 0.0);\n"
+//"    vec4 specularColor= vec4(1.0, 1.0, 1.0, 0.0);\n"
+//"    vec3 N = normalize(normalMatrix * normal);\n"
+//"    vec3 L = normalize(lightPos - vPosition.xyz); \n"
+//"    vec3 r = normalize(reflect(-L,N)); \n"
+//"    veryingColor=ambientColor+dot(N,L)*diffuseColor+specularColor*pow(dot(r,N),128.0);\n"
+//"}\n"
+//;
+//static const char *myFragmentShaderSource =
+//"in vec4 veryingColor;\n"
+//"out vec4 fColor;\n"
+//"void main(){\n"
+//"    fColor = veryingColor;\n"
+//"}\n";
+
+//----------------phong--------------------//
 static const char *myVertexShaderSource =
 "in vec4 vPosition;\n"
 "in vec3 normal;\n"
@@ -9,21 +36,28 @@ static const char *myVertexShaderSource =
 "uniform mat4 mvMatrix;\n"
 "uniform mat3 normalMatrix;\n"
 "uniform vec3 lightPos;\n"
-"out vec4 veryingColor;\n"
+"out vec3 N;\n"
+"out vec3 L;\n"
 "void main(){\n"
 "    gl_Position = projMatrix * mvMatrix * vPosition;\n"
-"	 vec4 objectColor = vec4(0.5, 0.4, 0.8, 1.0);\n"
-"	 veryingColor = dot(normalize(normalMatrix*normal), normalize(lightPos-vPosition.xyz)) * objectColor;\n"
-"}\n";
+"    N = normalize(normalMatrix * normal);\n"
+"    L = normalize(lightPos - vPosition.xyz); \n"
+"}\n"
+;
 static const char *myFragmentShaderSource =
-"in vec4 veryingColor;\n"
+"in vec3 N;\n"
+"in vec3 L;\n"
 "out vec4 fColor;\n"
 "void main(){\n"
-"    fColor = veryingColor;\n"
+"    vec4 diffuseColor= vec4(0.5, 0.4, 0.8, 1.0);\n"
+"    vec4 ambientColor= vec4(0.1, 0.1, 0.1, 0.0);\n"
+"    vec4 specularColor= vec4(1.0, 1.0, 1.0, 0.0);\n"
+"    vec3 r = normalize(reflect(-L,N)); \n"
+"    fColor = ambientColor+dot(N,L)*diffuseColor+specularColor*pow(dot(r,N),128.0);\n"
 "}\n";
 
 GLWidget::GLWidget(QWidget *parent)
-	: QOpenGLWidget(parent)
+	: QOpenGLWidget(parent), indexBuffer(QOpenGLBuffer::IndexBuffer)
 {
 
 }
@@ -36,6 +70,9 @@ QSize GLWidget::minimumSizeHint() const
 
 void GLWidget::initializeGL()
 {
+	this->objLoader = ObjLoader();
+	this->objLoader.loadObj("sphere_withNormal.obj");
+
 	initializeOpenGLFunctions();
 	int m_transparent = 0;
 	glClearColor(0.8, 0.8, 0.8, 1);
@@ -56,33 +93,28 @@ void GLWidget::initializeGL()
 	m_vao.create();
 	QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
 
-	// Setup our vertex buffer object.
-	m_vbo.create();
-	m_vbo.bind();
-	m_vbo.allocate(m_logo.constData(), m_logo.count() * sizeof(GLfloat));
+	arrayBuffer.create();
+	arrayBuffer.bind();
+	arrayBuffer.allocate(this->objLoader.vertexes, this->objLoader.vertexNum * sizeof(VertexData));
 
-	// Store the vertex attribute bindings for the program.
-	setupVertexAttribs();
+	indexBuffer.create();
+	indexBuffer.bind();
+	indexBuffer.allocate(this->objLoader.indices, this->objLoader.indiceNum * sizeof(unsigned int));
+
+	m_program->enableAttributeArray(0);
+	m_program->setAttributeBuffer(0, GL_FLOAT, 0, 3, sizeof(VertexData));
+	m_program->enableAttributeArray(1);
+	m_program->setAttributeBuffer(1, GL_FLOAT, sizeof(QVector3D), 3, sizeof(VertexData));
 
 	// Our camera never changes in this example.
 	m_camera.setToIdentity();
-	m_camera.translate(0, 0, -1);
+	m_camera.translate(0, 0, -12);
 
 	m_program->release();
 
 	m_world.setToIdentity();
 	rotateAngle = 0;
 	rotateAxis = QVector3D(1, 0, 0);
-}
-void GLWidget::setupVertexAttribs()
-{
-	m_vbo.bind();
-	QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
-	f->glEnableVertexAttribArray(0);
-	f->glEnableVertexAttribArray(1);
-	f->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 0);
-	f->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void *>(3 * sizeof(GLfloat)));
-	m_vbo.release();
 }
 
 void GLWidget::paintGL()
@@ -100,7 +132,7 @@ void GLWidget::paintGL()
 	m_program->setUniformValue(m_mvMatrixLoc, m_camera * m_world);
 	m_program->setUniformValue(m_program->uniformLocation("normalMatrix"), m_world.normalMatrix());
 
-	glDrawArrays(GL_TRIANGLES, 0, m_logo.vertexCount());
+	glDrawElements(GL_TRIANGLES, this->objLoader.indiceNum, GL_UNSIGNED_INT, 0);
 
 	m_program->release();
 }
@@ -163,4 +195,13 @@ double GLWidget::calculateY(QPoint point)
 double GLWidget::calculateZ(double x, double y)
 {
 	return (pow(x, 2.0) + pow(y, 2.0) <= 1) ? sqrt(1 - pow(x, 2.0) - pow(y, 2.0)) : 0;
+}
+
+void GLWidget::load_file()
+{
+	std::string filePath = QFileDialog::getOpenFileName(this, tr("Load File"), "", "obj file(*.obj)").toStdString();
+
+	char* charPath = (char*)filePath.c_str();
+	this->objLoader = ObjLoader();
+	this->objLoader.loadObj(charPath);
 }

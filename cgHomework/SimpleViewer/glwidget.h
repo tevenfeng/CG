@@ -7,13 +7,15 @@
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLBuffer>
+#include <QFileDialog>
 #include <QMatrix4x4>
 #include "logo.h"
 #include <math.h>
+#include "ObjLoader.h"
 
 class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
-Q_OBJECT
+	Q_OBJECT
 
 public:
 	GLWidget(QWidget *parent = 0);
@@ -25,7 +27,6 @@ public:
 	void mousePressEvent(QMouseEvent *event) override;
 	void mouseMoveEvent(QMouseEvent *event) override;
 	QSize minimumSizeHint() const override;
-	void setupVertexAttribs();
 	void arcBall(QPoint last_pnt, QPoint curr_pnt);
 
 	double calculateX(QPoint point);
@@ -48,6 +49,12 @@ public:
 	QPoint m_currPos;
 	QVector3D rotateAxis;
 	float rotateAngle;
+
+	ObjLoader objLoader;
+	QOpenGLBuffer arrayBuffer, indexBuffer;
+
+	public slots:
+	void load_file();
 };
 
 #endif
