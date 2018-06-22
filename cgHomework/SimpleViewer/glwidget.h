@@ -8,7 +8,9 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLBuffer>
 #include <QFileDialog>
+#include <QMouseEvent>
 #include <QMatrix4x4>
+#include <QPainter>
 #include <math.h>
 #include "ObjLoader.h"
 
@@ -50,6 +52,7 @@ public:
 
 	ObjLoader objLoader;
 	QOpenGLBuffer arrayBuffer, indexBuffer;
+	double zoomScale = 1;
 
 	public slots:
 	void load_file();

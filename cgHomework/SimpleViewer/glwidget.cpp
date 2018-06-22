@@ -1,5 +1,4 @@
 #include "glwidget.h"
-#include <QMouseEvent>
 
 //--------------------ADS-----------------------//
 //static const char *myVertexShaderSource =
@@ -131,6 +130,23 @@ void GLWidget::paintGL()
 
 	glDrawElements(GL_TRIANGLES, this->objLoader.indiceNum, GL_UNSIGNED_INT, 0);
 
+	glLineWidth(1.0);
+	glBegin(GL_LINES);
+	for (int i = 0; i < objLoader.vertexNum; i++)
+	{
+		float *v1 = new float[3];
+		v1[0] = objLoader.vertexes[i].position.x();
+		v1[1] = objLoader.vertexes[i].position.y();
+		v1[2] = objLoader.vertexes[i].position.z();
+		float *v2 = new float[3];
+		v2[0] = objLoader.vertexes[i].position.x() + objLoader.vertexes[i].normal.normalized().x();
+		v2[1] = objLoader.vertexes[i].position.y() + objLoader.vertexes[i].normal.normalized().y();
+		v2[2] = objLoader.vertexes[i].position.z() + objLoader.vertexes[i].normal.normalized().z();
+		glVertex3fv(v1);
+		glVertex3fv(v2);
+	}
+	glEnd();
+
 	m_program->release();
 }
 
@@ -151,13 +167,14 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
 	m_currPos = event->pos();
-	if (event->buttons() & Qt::LeftButton )
+	if (event->buttons() & Qt::LeftButton)
 	{
 		arcBall(m_lastPos, m_currPos);
 		update();
 	}
 	m_lastPos = m_currPos;
 }
+
 
 void GLWidget::arcBall(QPoint last_pnt, QPoint curr_pnt)
 {
@@ -200,7 +217,7 @@ void GLWidget::load_file()
 
 	char* charPath = (char*)filePath.c_str();
 	this->objLoader = ObjLoader();
-	if (!this->objLoader.loadObj(charPath)) 
+	if (!this->objLoader.loadObj(charPath))
 	{
 		QMessageBox::about(NULL, "Error", "Can not open the obj file! Please select a well formatted obj file!");
 		return;
