@@ -11,7 +11,6 @@ bool ObjLoader::loadObj(char* path)
 	FILE *file = fopen(path, "r");
 	if (file == NULL)
 	{
-		QMessageBox::about(NULL, "Error", "Can not open the obj file! Please select your obj file!");
 		return false;
 	}
 	else

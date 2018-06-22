@@ -70,9 +70,6 @@ QSize GLWidget::minimumSizeHint() const
 
 void GLWidget::initializeGL()
 {
-	this->objLoader = ObjLoader();
-	this->objLoader.loadObj("sphere_withNormal.obj");
-
 	initializeOpenGLFunctions();
 	int m_transparent = 0;
 	glClearColor(0.8, 0.8, 0.8, 1);
@@ -203,5 +200,10 @@ void GLWidget::load_file()
 
 	char* charPath = (char*)filePath.c_str();
 	this->objLoader = ObjLoader();
-	this->objLoader.loadObj(charPath);
+	if (!this->objLoader.loadObj(charPath)) 
+	{
+		QMessageBox::about(NULL, "Error", "Can not open the obj file! Please select a well formatted obj file!");
+		return;
+	}
+	initializeGL();
 }
