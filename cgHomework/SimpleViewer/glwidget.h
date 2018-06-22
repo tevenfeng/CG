@@ -54,8 +54,11 @@ public:
 	QOpenGLBuffer arrayBuffer, indexBuffer;
 	double zoomScale = 1;
 
+	bool isNormalShown = false;
+
 	public slots:
 	void load_file();
+	void show_normal();
 };
 
 #endif

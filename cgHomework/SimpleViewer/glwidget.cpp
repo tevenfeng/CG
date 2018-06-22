@@ -130,22 +130,25 @@ void GLWidget::paintGL()
 
 	glDrawElements(GL_TRIANGLES, this->objLoader.indiceNum, GL_UNSIGNED_INT, 0);
 
-	glLineWidth(1.0);
-	glBegin(GL_LINES);
-	for (int i = 0; i < objLoader.vertexNum; i++)
-	{
-		float *v1 = new float[3];
-		v1[0] = objLoader.vertexes[i].position.x();
-		v1[1] = objLoader.vertexes[i].position.y();
-		v1[2] = objLoader.vertexes[i].position.z();
-		float *v2 = new float[3];
-		v2[0] = objLoader.vertexes[i].position.x() + objLoader.vertexes[i].normal.normalized().x();
-		v2[1] = objLoader.vertexes[i].position.y() + objLoader.vertexes[i].normal.normalized().y();
-		v2[2] = objLoader.vertexes[i].position.z() + objLoader.vertexes[i].normal.normalized().z();
-		glVertex3fv(v1);
-		glVertex3fv(v2);
+	if (this->isNormalShown) {
+		glLineWidth(1.0);
+		glBegin(GL_LINES);
+		for (int i = 0; i < objLoader.vertexNum; i++)
+		{
+			float *v1 = new float[3];
+			v1[0] = objLoader.vertexes[i].position.x();
+			v1[1] = objLoader.vertexes[i].position.y();
+			v1[2] = objLoader.vertexes[i].position.z();
+			float *v2 = new float[3];
+			v2[0] = objLoader.vertexes[i].position.x() + objLoader.vertexes[i].normal.normalized().x() / 4.0;
+			v2[1] = objLoader.vertexes[i].position.y() + objLoader.vertexes[i].normal.normalized().y() / 4.0;
+			v2[2] = objLoader.vertexes[i].position.z() + objLoader.vertexes[i].normal.normalized().z() / 4.0;
+			glVertex3fv(v1);
+			glVertex3fv(v2);
+			delete v1, v2;
+		}
+		glEnd();
 	}
-	glEnd();
 
 	m_program->release();
 }
@@ -223,4 +226,15 @@ void GLWidget::load_file()
 		return;
 	}
 	initializeGL();
+}
+
+void GLWidget::show_normal()
+{
+	if (this->isNormalShown){
+		this->isNormalShown = false;
+	}
+	else {
+		this->isNormalShown = true;
+	}
+	update();
 }

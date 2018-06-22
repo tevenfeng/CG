@@ -14,9 +14,12 @@ SimpleViewer::SimpleViewer(QWidget *parent)
 	QMenu *menuEdit = menuBar->addMenu(tr("&Edit"));
 	QAction *loaderAction = new QAction(tr("Load File"), this);
 	menuFile->addAction(loaderAction);
+	QAction *showNormalAction = new QAction(tr("Show Normal"), this);
+	menuEdit->addAction(showNormalAction);
 	setMenuBar(menuBar);
 	GLWidget * glWidget = new GLWidget(this);
 	setCentralWidget(glWidget);
 
 	QObject::connect(loaderAction, &QAction::triggered, glWidget, &GLWidget::load_file);
+	QObject::connect(showNormalAction, &QAction::triggered, glWidget, &GLWidget::show_normal);
 }
