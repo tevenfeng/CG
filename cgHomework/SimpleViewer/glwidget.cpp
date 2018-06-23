@@ -220,9 +220,12 @@ void GLWidget::load_file()
 	this->objLoader = ObjLoader();
 	if (!this->objLoader.loadObj(charPath))
 	{
-		QMessageBox::about(NULL, "Error", "Can not open the obj file! Please select a well formatted obj file!");
+		std::string errMsg = "Can not open " + filePath + ". Please try again!";
+		QMessageBox::about(NULL, "Error", QString::fromStdString(errMsg));
 		return;
 	}
+
+	// force update
 	initializeGL();
 }
 
@@ -234,5 +237,7 @@ void GLWidget::show_normal()
 	else {
 		this->isNormalShown = true;
 	}
+
+	// force update
 	update();
 }

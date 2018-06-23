@@ -43,7 +43,6 @@ bool ObjLoader::loadObj(char* path)
 					{
 						int matches = fscanf(file, "%d//%d %d//%d %d//%d\n", &a, &b, &c, &d, &e, &f);
 						if (matches != 6) {
-							QMessageBox::about(NULL, "Error", "File can't be read by our simple parser.\n");
 							return false;
 						}
 						indices[indiceNum++] = a - 1;
