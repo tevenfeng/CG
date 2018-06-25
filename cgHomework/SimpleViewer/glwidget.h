@@ -27,6 +27,7 @@ public:
 	void resizeGL(int width, int height) override;
 	void mousePressEvent(QMouseEvent *event) override;
 	void mouseMoveEvent(QMouseEvent *event) override;
+	void wheelEvent(QWheelEvent *event) override;
 	QSize minimumSizeHint() const override;
 	void arcBall(QPoint last_pnt, QPoint curr_pnt);
 

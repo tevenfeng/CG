@@ -177,6 +177,17 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 }
 
 
+void GLWidget::wheelEvent(QWheelEvent * event)
+{
+	if (event->delta() > 0) {
+		m_camera.translate(0, 0, 1);
+	}
+	else {
+		m_camera.translate(0, 0, -1);
+	}
+	update();
+}
+
 void GLWidget::arcBall(QPoint last_pnt, QPoint curr_pnt)
 {
 	QVector3D lastPoint3d, currPoint3d;
