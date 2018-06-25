@@ -53,7 +53,6 @@ public:
 
 	ObjLoader objLoader;
 	QOpenGLBuffer arrayBuffer, indexBuffer;
-	double zoomScale = 1;
 
 	bool isNormalShown = false;
 

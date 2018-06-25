@@ -176,7 +176,6 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 	m_lastPos = m_currPos;
 }
 
-
 void GLWidget::wheelEvent(QWheelEvent * event)
 {
 	if (event->delta() > 0) {
